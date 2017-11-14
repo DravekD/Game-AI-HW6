@@ -138,6 +138,7 @@ MonoBehaviour:
   oob: {fileID: 4229590442285698, guid: 305656fb3b7d2954dbb07e3419a20a2a, type: 2}
   tree: {fileID: 4122123234752988, guid: b1478fd5d52a044478eda0ba341b6eaa, type: 2}
   floor: {fileID: 4045382418674562, guid: 964cc1464d4a65345bdfee82045e78d5, type: 2}
+  waypoint: {fileID: 4114998098224872, guid: 4ddf3f16a1f454444b4624ba5c88ccff, type: 2}
 --- !u!4 &47592832
 Transform:
   m_ObjectHideFlags: 0
