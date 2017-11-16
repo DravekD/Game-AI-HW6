@@ -10,9 +10,11 @@ public class Instantiate : MonoBehaviour {
     private uint width;
     private bool current_map = true;
     private bool[][] adjacency_matrix = new bool[109][];
-    private bool[][] adjacency_matrix2 = new bool[319][];
+    private bool[][] adjacency_matrix2 = new bool[320][];
     private Transform[] waypoints = new Transform[109];
-    private Transform[] waypoints2 = new Transform[319];
+    private Transform[] waypoints2 = new Transform[320];
+    private Transform[][] tile_map;
+    private Transform[][] map_objects;
     public Transform oob;
     public Transform tree;
     public Transform floor;
@@ -47,6 +49,9 @@ public class Instantiate : MonoBehaviour {
         width = Convert.ToUInt32(line.Substring(space + 1));
         reader.ReadLine();
 
+        //Print the map type out cause why not.
+        Debug.Log(type);
+
         //Generate the 2D array of map data.
         Int32[][] map = new Int32[height][];
         for (int k=0; k<height; k++)
@@ -77,8 +82,10 @@ public class Instantiate : MonoBehaviour {
 
         //Generate the map using the data.
         //@ = 64, T = 84, . = 46
+        map_objects = new Transform[height][];
         for (int a = 0; a < height; a++)
         {
+            map_objects[a] = new Transform[width];
             for (int b = 0; b < width; b++)
             {
                 int y = a;
@@ -86,15 +93,15 @@ public class Instantiate : MonoBehaviour {
                 Vector3 loc = new Vector3((x * 0.5f + 0.25f), (y * -0.5f - 0.25f), 0);
                 if (map[y][x] == 64)
                 {
-                    Instantiate(oob, loc, Quaternion.identity);
+                    map_objects[a][b] = Instantiate(oob, loc, Quaternion.identity);
                 }
                 else if (map[y][x] == 84)
                 {
-                    Instantiate(tree, loc, Quaternion.identity);
+                    map_objects[a][b] = Instantiate(tree, loc, Quaternion.identity);
                 }
                 else if (map[y][x] == 46)
                 {
-                    Instantiate(floor, loc, Quaternion.identity);
+                    map_objects[a][b] = Instantiate(floor, loc, Quaternion.identity);
                 }
                 else if (map[y][x] == 0)
                 {
@@ -120,7 +127,18 @@ public class Instantiate : MonoBehaviour {
             }
         }
 
+        //Initialize the second adjacency matrix.
+        for (int a=0; a<320; a++)
+        {
+            adjacency_matrix2[a] = new bool[320];
+            for (int b=0; b<320; b++)
+            {
+                adjacency_matrix2[a][b] = false;
+            }
+        }
+
         //Generate the waypoint map
+        
         if (!current_map)
         {
             waypoints[0] = Instantiate(waypoint, new Vector3(48.5f, -4.5f, 0), Quaternion.identity);
@@ -1042,6 +1060,26 @@ public class Instantiate : MonoBehaviour {
             adjacency_matrix2[317][314] = true; adjacency_matrix2[317][318] = true;
             adjacency_matrix2[318][315] = true; adjacency_matrix2[318][317] = true; adjacency_matrix2[318][319] = true;
             adjacency_matrix2[319][316] = true; adjacency_matrix2[319][318] = true;
+        }
+        
+        //Generate the tile map
+        tile_map = new Transform[height/2][];
+        for (int a=1; a<height; a+=2)
+        {
+            tile_map[a/2] = new Transform[width/2];
+            for (int b=1; b<width; b+=2)
+            {
+                if (map[a][b] == 46 && map[a-1][b] == 46 && map[a][b-1] == 46 && map[a-1][b-1] == 46)
+                {
+                    float pos_x = (map_objects[a][b].position.x + map_objects[a][b-1].position.x)/2;
+                    float pos_y = (map_objects[a][b].position.y + map_objects[a-1][b].position.y)/2;
+                    tile_map[a/2][b/2] = Instantiate(waypoint, new Vector3(pos_x, pos_y, 0f), Quaternion.identity);
+                }
+                else
+                {
+                    tile_map[a/2][b/2] = null;
+                }
+            }
         }
     }
 
